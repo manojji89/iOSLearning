@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  PopularMovieViewController.swift
 //  MovieDBApp
 //
 //  Created by Manoj Singhal on 11/03/21.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class PopularMovieViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
