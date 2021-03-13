@@ -8,12 +8,103 @@
 import UIKit
 
 class PopularMovieViewController: UIViewController {
-
+        
+    lazy var popularMovieCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        let view = UICollectionView(frame: self.view.frame, collectionViewLayout: layout)
+        view.backgroundColor = UIColor.white
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.dataSource = self
+        view.delegate = self
+        view.register(MovieCollectionViewCell.nib, forCellWithReuseIdentifier: MovieCollectionViewCell.identifier)
+        return view
+    }()
+    
+    private(set) lazy var output: PopularMovieInteractorInput = {
+        return PopularMovieInteractor(PopularMoviePresenter(self) as PopularMovieInteractorOutput, PopularMovieWorker())
+    }()
+    
+    private var viewModel = PopularMovieModel.ViewModel(movies: []) {
+        didSet {
+            popularMovieCollectionView.reloadData()
+        }
+    }
+    
+    fileprivate enum UIConstants {
+        static let margin: CGFloat = 15.0
+        static let itemSizeRatio: CGFloat = 2.0/3.0
+    }
+    
+    private var itemSize: CGSize = .zero
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        view.addSubview(popularMovieCollectionView)
+        popularMovieCollectionView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        popularMovieCollectionView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        popularMovieCollectionView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+        popularMovieCollectionView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+        popularMovieCollectionView.reloadData()
+        output.fetchMovies(PopularMovieModel.Request(movieCategoryType: .popular))
+        
         // Do any additional setup after loading the view.
     }
-
-
+    
 }
 
+extension PopularMovieViewController: UICollectionViewDataSource {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return viewModel.movies.count
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieCollectionViewCell.identifier, for: indexPath) as! MovieCollectionViewCell
+        cell.loadView(movie: viewModel.movies[indexPath.row])
+        return cell
+    }
+    
+}
+
+
+extension PopularMovieViewController: UICollectionViewDelegateFlowLayout {
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return UIConstants.margin
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = ((collectionView.bounds.width - 3*UIConstants.margin)/2)
+        return CGSize(width: width , height: width * 1.5)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: UIConstants.margin, left: UIConstants.margin, bottom: UIConstants.margin, right: UIConstants.margin)
+    }
+    
+}
+
+
+
+extension PopularMovieViewController: PopularMoviePresenterOutput {
+    
+    func showLoading() {
+        //TODO: show loader
+    }
+    
+    func hideLoading() {
+        //TODO: hide loader
+    }
+    
+    func showFailure(_ error: Error) {
+        //TODO: handle failure
+    }
+    
+    func showSuccess(_ model: PopularMovieModel.ViewModel) {
+        viewModel = model
+    }
+    
+}
