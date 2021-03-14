@@ -40,6 +40,8 @@ class PopularMovieViewController: UIViewController, SortViewControllerDelegate {
         }
     }
     
+    private(set) lazy var router: PopularMovieRouting = { PopularMovieRouter(controller: self) }()
+    
     fileprivate enum UIConstants {
         static let margin: CGFloat = 15.0
         static let itemSizeRatio: CGFloat = 2.0/3.0
@@ -84,7 +86,12 @@ class PopularMovieViewController: UIViewController, SortViewControllerDelegate {
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.isActive = false
         searchController.searchBar.placeholder = "Search Movies"
-        navigationItem.searchController = searchController
+        if #available(iOS 11, *) {
+           navigationItem.searchController = searchController;
+           searchController.isActive = true;
+        } else {
+           self.present(searchController, animated: true, completion: nil)
+        }
         definesPresentationContext = true
     }
     
@@ -119,6 +126,10 @@ extension PopularMovieViewController: UICollectionViewDataSource {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieCollectionViewCell.identifier, for: indexPath) as! MovieCollectionViewCell
         cell.loadView(movie: searchActive ? viewModel.searchMovies[indexPath.row] : viewModel.movies[indexPath.row])
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        router.routeToDetails(movie: searchActive ? viewModel.searchMovies[indexPath.row] : viewModel.movies[indexPath.row])
     }
     
 }

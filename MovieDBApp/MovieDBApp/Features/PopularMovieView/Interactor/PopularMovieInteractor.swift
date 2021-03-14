@@ -52,8 +52,9 @@ final class PopularMovieInteractor: PopularMovieInteractorInput {
                             id      : entry.id,
                             title   : entry.title,
                             overview: entry.overview,
-                            rating  : entry.rating, popularity: entry.popularity,
-                            poster  : entry.poster.map   { ApiRouter.getImageUrl(path: $0, forType: .poster) }
+                            rating  : entry.rating,
+                            popularity: entry.popularity,
+                            poster  : entry.poster.map   { ApiRouter.getImageUrl(path: $0, forType: .poster) }, releaseDate: entry.releaseDate
                         )
                     }
                     

@@ -29,6 +29,7 @@ struct PopularMovieModel {
             let poster  : String?
             let backdrop: String?
             let popularity: Double
+            let releaseDate: String
 
 
             enum CodingKeys: String, CodingKey {
@@ -39,6 +40,7 @@ struct PopularMovieModel {
                 case poster   = "poster_path"
                 case backdrop = "backdrop_path"
                 case popularity = "popularity"
+                case releaseDate = "release_date"
             }
         }
     }
@@ -54,6 +56,7 @@ struct PopularMovieModel {
             let rating  : Double
             let popularity: Double
             let poster  : URL?
+            let releaseDate: String
         }
     }
     
