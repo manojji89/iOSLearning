@@ -7,7 +7,12 @@
 
 import UIKit
 
-class PopularMovieViewController: UIViewController {
+class PopularMovieViewController: UIViewController, SortViewControllerDelegate {
+    
+    func sortBy(option: SortBy) {
+        self.sortBy = option
+    }
+    
         
     lazy var popularMovieCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -36,11 +41,32 @@ class PopularMovieViewController: UIViewController {
     }
     
     private var itemSize: CGSize = .zero
+        
+    private let sortByButton = UIButton(type: .custom)
     
+    private var sortBy: SortBy = .mostPopular
+
+    /// WARNING: Change these constants according to your project's design
+    private struct Const {
+      /// Image height/width for Large NavBar state
+      static let ImageSizeForLargeState: CGFloat = 30
+      /// Margin from right anchor of safe area to right anchor of Image
+      static let ImageRightMargin: CGFloat = 16
+      /// Margin from bottom anchor of NavBar to bottom anchor of Image for Large NavBar state
+      static let ImageBottomMarginForLargeState: CGFloat = 12
+      /// Margin from bottom anchor of NavBar to bottom anchor of Image for Small NavBar state
+      static let ImageBottomMarginForSmallState: CGFloat = 6
+      /// Image height/width for Small NavBar state
+      static let ImageSizeForSmallState: CGFloat = 28
+      /// Height of NavBar for Small state. Usually it's just 44
+      static let NavBarHeightSmallState: CGFloat = 34
+      /// Height of NavBar for Large state. Usually it's just 96.5 but if you have a custom font for the title, please make sure to edit this value since it changes the height for Large state of NavBar
+      static let NavBarHeightLargeState: CGFloat = 96.5
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setupNavigationUI()
         view.addSubview(popularMovieCollectionView)
         popularMovieCollectionView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         popularMovieCollectionView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
@@ -48,10 +74,41 @@ class PopularMovieViewController: UIViewController {
         popularMovieCollectionView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
         popularMovieCollectionView.reloadData()
         output.fetchMovies(PopularMovieModel.Request(movieCategoryType: .popular))
+    }
+      
+    private func setupNavigationUI() {
+        navigationController?.navigationBar.prefersLargeTitles = true
+        title = "Popular Movies".localized
+        self.navigationItem.largeTitleDisplayMode = .automatic
         
-        // Do any additional setup after loading the view.
+        
+        guard let navigationBar = self.navigationController?.navigationBar else { return }
+        
+        navigationBar.addSubview(sortByButton)
+        sortByButton.setImage(UIImage.init(asset: .sortIconImage), for: .normal)
+        sortByButton.translatesAutoresizingMaskIntoConstraints = false
+        sortByButton.addTarget(self, action: #selector(sortByAction), for: UIControl.Event.touchUpInside)
+        NSLayoutConstraint.activate([
+            sortByButton.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -Const.ImageRightMargin),
+            sortByButton.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -Const.ImageBottomMarginForLargeState),
+            sortByButton.heightAnchor.constraint(equalToConstant: Const.ImageSizeForLargeState),
+            sortByButton.widthAnchor.constraint(equalTo: sortByButton.heightAnchor)
+        ])
     }
     
+    
+    @objc func sortByAction() {
+        let controller = SortViewController()
+        controller.sortBy = sortBy
+        controller.delegate = self
+        controller.modalPresentationStyle = .custom
+        let nav = UINavigationController(rootViewController: controller)
+        nav.navigationBar.isHidden = true
+        present(nav, animated: true, completion: nil)
+        // Present Search Controller
+    }
+
+
 }
 
 extension PopularMovieViewController: UICollectionViewDataSource {
@@ -86,7 +143,6 @@ extension PopularMovieViewController: UICollectionViewDelegateFlowLayout {
     }
     
 }
-
 
 
 extension PopularMovieViewController: PopularMoviePresenterOutput {

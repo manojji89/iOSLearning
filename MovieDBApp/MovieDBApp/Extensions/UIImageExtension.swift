@@ -13,6 +13,8 @@ enum Asset: String {
     
     case placeHolderImage = "placeHolder"
     case failImage = "" // TODO: when image loading fails
+    case sortIconImage = "sortIcon"
+    case closeIconImage = "ic_close"
     var image: UIImage {
         return UIImage(asset: self)
     }
