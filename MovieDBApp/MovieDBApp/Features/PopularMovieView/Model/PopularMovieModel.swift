@@ -45,7 +45,8 @@ struct PopularMovieModel {
     
     struct ViewModel {
         var movies: [Movie]
-        
+        var searchMovies: [Movie]
+
         struct Movie {
             let id      : Int
             let title   : String

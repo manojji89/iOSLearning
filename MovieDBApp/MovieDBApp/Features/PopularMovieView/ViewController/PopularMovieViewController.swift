@@ -34,7 +34,7 @@ class PopularMovieViewController: UIViewController, SortViewControllerDelegate {
         return PopularMovieInteractor(PopularMoviePresenter(self) as PopularMovieInteractorOutput, PopularMovieWorker(), viewModel)
     }()
     
-    private var viewModel = PopularMovieModel.ViewModel(movies: []) {
+    private var viewModel = PopularMovieModel.ViewModel(movies: [], searchMovies: []) {
         didSet {
             popularMovieCollectionView.reloadData()
         }
@@ -51,45 +51,41 @@ class PopularMovieViewController: UIViewController, SortViewControllerDelegate {
     
     private var sortBy: SortBy = .mostPopular
 
-    private struct Const {
-      /// Image height/width for Large NavBar state
-      static let ImageSizeForLargeState: CGFloat = 30
-      /// Margin from right anchor of safe area to right anchor of Image
-      static let ImageRightMargin: CGFloat = 16
-      /// Margin from bottom anchor of NavBar to bottom anchor of Image for Large NavBar state
-      static let ImageBottomMarginForLargeState: CGFloat = 12
-    }
+    private let searchController = UISearchController(searchResultsController: nil)
+    
+    private var searchActive: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationUI()
+        setupCollectionView()
+        popularMovieCollectionView.reloadData()
+        output.fetchMovies(PopularMovieModel.Request(movieCategoryType: .popular))
+    }
+    
+    private func setupCollectionView() {
         view.addSubview(popularMovieCollectionView)
         popularMovieCollectionView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         popularMovieCollectionView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
         popularMovieCollectionView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
         popularMovieCollectionView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
-        popularMovieCollectionView.reloadData()
-        output.fetchMovies(PopularMovieModel.Request(movieCategoryType: .popular))
     }
       
     private func setupNavigationUI() {
-        navigationController?.navigationBar.prefersLargeTitles = true
         title = "Popular Movies".localized
-        self.navigationItem.largeTitleDisplayMode = .automatic
-        
-        
-        guard let navigationBar = self.navigationController?.navigationBar else { return }
-        
-        navigationBar.addSubview(sortByButton)
         sortByButton.setImage(UIImage.init(asset: .sortIconImage), for: .normal)
+        sortByButton.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
         sortByButton.translatesAutoresizingMaskIntoConstraints = false
         sortByButton.addTarget(self, action: #selector(sortByAction), for: UIControl.Event.touchUpInside)
-        NSLayoutConstraint.activate([
-            sortByButton.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -Const.ImageRightMargin),
-            sortByButton.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -Const.ImageBottomMarginForLargeState),
-            sortByButton.heightAnchor.constraint(equalToConstant: Const.ImageSizeForLargeState),
-            sortByButton.widthAnchor.constraint(equalTo: sortByButton.heightAnchor)
-        ])
+        let barButton = UIBarButtonItem.init(customView: sortByButton)
+        navigationItem.rightBarButtonItem = barButton
+
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.isActive = false
+        searchController.searchBar.placeholder = "Search Movies"
+        navigationItem.searchController = searchController
+        definesPresentationContext = true
     }
     
     
@@ -111,22 +107,23 @@ class PopularMovieViewController: UIViewController, SortViewControllerDelegate {
 
 }
 
+//MARK:- UICollectionView DataSourse
 extension PopularMovieViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.movies.count
+        return searchActive ? viewModel.searchMovies.count : viewModel.movies.count
         
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieCollectionViewCell.identifier, for: indexPath) as! MovieCollectionViewCell
-        cell.loadView(movie: viewModel.movies[indexPath.row])
+        cell.loadView(movie: searchActive ? viewModel.searchMovies[indexPath.row] : viewModel.movies[indexPath.row])
         return cell
     }
     
 }
 
-
+//MARK:- UICollectionView Flow Layout
 extension PopularMovieViewController: UICollectionViewDelegateFlowLayout {
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -144,7 +141,7 @@ extension PopularMovieViewController: UICollectionViewDelegateFlowLayout {
     
 }
 
-
+//MARK:- Show/Hide loader, handle result and errors
 extension PopularMovieViewController: PopularMoviePresenterOutput {
     
     func showLoading() {
@@ -164,6 +161,21 @@ extension PopularMovieViewController: PopularMoviePresenterOutput {
     func showSuccess(_ model: PopularMovieModel.ViewModel) {
         viewModel = model
     }
+    
+}
+
+//MARK:- UISearchResults
+extension PopularMovieViewController: UISearchResultsUpdating {
+    
+  func updateSearchResults(for searchController: UISearchController) {
+    if let text = searchController.searchBar.text, text.count > 0 {
+        searchActive = true
+        viewModel.searchMovies = viewModel.movies.filter({$0.title.contains(text)})
+    } else {
+        searchActive = false
+        viewModel.searchMovies = []
+    }
+  }
     
 }
 

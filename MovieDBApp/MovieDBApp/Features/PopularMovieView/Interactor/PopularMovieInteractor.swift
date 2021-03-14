@@ -62,7 +62,7 @@ final class PopularMovieInteractor: PopularMovieInteractorInput {
                     }))
                 
                     self?.output.hideLoading()
-                    self?.viewModel = PopularMovieModel.ViewModel(movies: movies)
+                    self?.viewModel = PopularMovieModel.ViewModel(movies: movies, searchMovies: [])
                     self?.output.showSuccess(self!.viewModel)
                 }
             )
