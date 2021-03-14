@@ -12,6 +12,7 @@ import Alamofire
 
 protocol PopularMovieInteractorInput {
     func fetchMovies(_ request: PopularMovieModel.Request)
+    func sortMovies(sortType: SortBy)
 }
 
 protocol PopularMovieInteractorOutput {
@@ -25,12 +26,14 @@ final class PopularMovieInteractor: PopularMovieInteractorInput {
     
     let output: PopularMovieInteractorOutput
     let worker: PopularMovieWorkerProtocol
+    var viewModel: PopularMovieModel.ViewModel
     
     var cancellables = Set<AnyCancellable>()
     
-    init(_ output: PopularMovieInteractorOutput, _ worker: PopularMovieWorkerProtocol) {
+    init(_ output: PopularMovieInteractorOutput, _ worker: PopularMovieWorkerProtocol, _ viewModel: PopularMovieModel.ViewModel) {
         self.output = output
         self.worker = worker
+        self.viewModel = viewModel
     }
     
     func fetchMovies(_ request: PopularMovieModel.Request) {
@@ -44,21 +47,43 @@ final class PopularMovieInteractor: PopularMovieInteractorInput {
                     }
                 },
                 receiveValue: { [weak self] response in
-                    let movies = response.results.map { entry -> PopularMovieModel.ViewModel.Movie in
+                    var movies = response.results.map { entry -> PopularMovieModel.ViewModel.Movie in
                         return PopularMovieModel.ViewModel.Movie(
                             id      : entry.id,
                             title   : entry.title,
                             overview: entry.overview,
-                            rating  : entry.rating,
+                            rating  : entry.rating, popularity: entry.popularity,
                             poster  : entry.poster.map   { ApiRouter.getImageUrl(path: $0, forType: .poster) }
                         )
                     }
+                    
+                    movies = (movies.sorted(by: {
+                        $0.popularity < $1.popularity
+                    }))
                 
                     self?.output.hideLoading()
-                    self?.output.showSuccess(PopularMovieModel.ViewModel(movies: movies))
+                    self?.viewModel = PopularMovieModel.ViewModel(movies: movies)
+                    self?.output.showSuccess(self!.viewModel)
                 }
             )
             .store(in: &cancellables)
+    }
+    
+    /// Sort movies against movie popularity or movie rating.
+    /// On finish, update moviest
+    func sortMovies(sortType: SortBy) {
+        switch sortType {
+        case .mostPopular:
+            viewModel.movies = viewModel.movies.sorted(by: {
+                $0.popularity < $1.popularity
+            })
+        case .highestRated:
+            viewModel.movies = viewModel.movies.sorted(by: {
+                $0.rating < $1.rating
+            })
+        default: break
+        }
+        self.output.showSuccess(self.viewModel)
     }
     
 }

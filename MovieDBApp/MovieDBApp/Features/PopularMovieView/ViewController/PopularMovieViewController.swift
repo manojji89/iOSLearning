@@ -9,11 +9,6 @@ import UIKit
 
 class PopularMovieViewController: UIViewController, SortViewControllerDelegate {
     
-    func sortBy(option: SortBy) {
-        self.sortBy = option
-    }
-    
-        
     lazy var popularMovieCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let view = UICollectionView(frame: self.view.frame, collectionViewLayout: layout)
@@ -25,8 +20,18 @@ class PopularMovieViewController: UIViewController, SortViewControllerDelegate {
         return view
     }()
     
+    
+    lazy var activityIndicator: UIActivityIndicatorView =  {
+        let loader = UIActivityIndicatorView(style: .large)
+        loader.center = view.center
+        loader.hidesWhenStopped = true
+        view.addSubview(loader)
+        return loader
+    }()
+
+    
     private(set) lazy var output: PopularMovieInteractorInput = {
-        return PopularMovieInteractor(PopularMoviePresenter(self) as PopularMovieInteractorOutput, PopularMovieWorker())
+        return PopularMovieInteractor(PopularMoviePresenter(self) as PopularMovieInteractorOutput, PopularMovieWorker(), viewModel)
     }()
     
     private var viewModel = PopularMovieModel.ViewModel(movies: []) {
@@ -46,7 +51,6 @@ class PopularMovieViewController: UIViewController, SortViewControllerDelegate {
     
     private var sortBy: SortBy = .mostPopular
 
-    /// WARNING: Change these constants according to your project's design
     private struct Const {
       /// Image height/width for Large NavBar state
       static let ImageSizeForLargeState: CGFloat = 30
@@ -54,14 +58,6 @@ class PopularMovieViewController: UIViewController, SortViewControllerDelegate {
       static let ImageRightMargin: CGFloat = 16
       /// Margin from bottom anchor of NavBar to bottom anchor of Image for Large NavBar state
       static let ImageBottomMarginForLargeState: CGFloat = 12
-      /// Margin from bottom anchor of NavBar to bottom anchor of Image for Small NavBar state
-      static let ImageBottomMarginForSmallState: CGFloat = 6
-      /// Image height/width for Small NavBar state
-      static let ImageSizeForSmallState: CGFloat = 28
-      /// Height of NavBar for Small state. Usually it's just 44
-      static let NavBarHeightSmallState: CGFloat = 34
-      /// Height of NavBar for Large state. Usually it's just 96.5 but if you have a custom font for the title, please make sure to edit this value since it changes the height for Large state of NavBar
-      static let NavBarHeightLargeState: CGFloat = 96.5
     }
     
     override func viewDidLoad() {
@@ -108,6 +104,10 @@ class PopularMovieViewController: UIViewController, SortViewControllerDelegate {
         // Present Search Controller
     }
 
+    func sortBy(option: SortBy) {
+        self.sortBy = option
+        output.sortMovies(sortType: self.sortBy)
+    }
 
 }
 
@@ -148,15 +148,17 @@ extension PopularMovieViewController: UICollectionViewDelegateFlowLayout {
 extension PopularMovieViewController: PopularMoviePresenterOutput {
     
     func showLoading() {
-        //TODO: show loader
+        activityIndicator.startAnimating()
     }
     
     func hideLoading() {
-        //TODO: hide loader
+        activityIndicator.stopAnimating()
     }
     
     func showFailure(_ error: Error) {
-        //TODO: handle failure
+        let alert = UIAlertController(title: "Error", message: "Hmmm… something went wrong. Please try again.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
     
     func showSuccess(_ model: PopularMovieModel.ViewModel) {
@@ -164,3 +166,5 @@ extension PopularMovieViewController: PopularMoviePresenterOutput {
     }
     
 }
+
+

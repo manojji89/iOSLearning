@@ -25,9 +25,11 @@ struct PopularMovieModel {
             let id      : Int
             let title   : String
             let overview: String
-            let rating  : Float?
+            let rating  : Double
             let poster  : String?
             let backdrop: String?
+            let popularity: Double
+
 
             enum CodingKeys: String, CodingKey {
                 case id
@@ -36,18 +38,20 @@ struct PopularMovieModel {
                 case rating   = "vote_average"
                 case poster   = "poster_path"
                 case backdrop = "backdrop_path"
+                case popularity = "popularity"
             }
         }
     }
     
     struct ViewModel {
-        let movies: [Movie]
+        var movies: [Movie]
         
         struct Movie {
             let id      : Int
             let title   : String
             let overview: String
-            let rating  : Float?
+            let rating  : Double
+            let popularity: Double
             let poster  : URL?
         }
     }
