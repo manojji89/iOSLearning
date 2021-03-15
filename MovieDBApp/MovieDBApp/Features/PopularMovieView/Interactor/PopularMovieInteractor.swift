@@ -20,6 +20,7 @@ protocol PopularMovieInteractorOutput {
     func hideLoading()
     func showFailure(_ error: Error)
     func showSuccess(_ model: PopularMovieModel.ViewModel)
+    func showSortedData(_ model: PopularMovieModel.ViewModel)
 }
 
 final class PopularMovieInteractor: PopularMovieInteractorInput {
@@ -27,7 +28,6 @@ final class PopularMovieInteractor: PopularMovieInteractorInput {
     let output: PopularMovieInteractorOutput
     let worker: PopularMovieWorkerProtocol
     var viewModel: PopularMovieModel.ViewModel
-    
     var cancellables = Set<AnyCancellable>()
     
     init(_ output: PopularMovieInteractorOutput, _ worker: PopularMovieWorkerProtocol, _ viewModel: PopularMovieModel.ViewModel) {
@@ -38,7 +38,7 @@ final class PopularMovieInteractor: PopularMovieInteractorInput {
     
     func fetchMovies(_ request: PopularMovieModel.Request) {
         output.showLoading()
-        worker.fetchMovies(request.movieCategoryType)
+        worker.fetchMovies(request.movieCategoryType, request.pageNumber)
             .sink(
                 receiveCompletion: { [weak self] completion in
                     switch completion {
@@ -58,12 +58,9 @@ final class PopularMovieInteractor: PopularMovieInteractorInput {
                         )
                     }
                     
-                    movies = (movies.sorted(by: {
-                        $0.popularity < $1.popularity
-                    }))
-                
-                    self?.output.hideLoading()
+                    movies = self?.getSortedMovies(movies: movies, sortType: request.sortedBy) ?? []
                     self?.viewModel = PopularMovieModel.ViewModel(movies: movies, searchMovies: [])
+                    self?.output.hideLoading()
                     self?.output.showSuccess(self!.viewModel)
                 }
             )
@@ -73,36 +70,39 @@ final class PopularMovieInteractor: PopularMovieInteractorInput {
     /// Sort movies against movie popularity or movie rating.
     /// On finish, update moviest
     func sortMovies(sortType: SortBy) {
+        viewModel.movies = getSortedMovies(movies: viewModel.movies, sortType: sortType)
+        self.output.showSortedData(viewModel)
+    }
+    
+    func getSortedMovies(movies: [PopularMovieModel.ViewModel.Movie], sortType: SortBy) -> [PopularMovieModel.ViewModel.Movie] {
+        
+        var sortedMovies = movies
         switch sortType {
         case .mostPopular:
-            viewModel.movies = viewModel.movies.sorted(by: {
+            sortedMovies = sortedMovies.sorted(by: {
                 $0.popularity < $1.popularity
             })
         case .highestRated:
-            viewModel.movies = viewModel.movies.sorted(by: {
+            sortedMovies = sortedMovies.sorted(by: {
                 $0.rating < $1.rating
             })
         default: break
         }
-        self.output.showSuccess(self.viewModel)
+
+        return sortedMovies
     }
     
 }
 
 
 protocol PopularMovieWorkerProtocol {
-    func fetchMovies(_ categoryType: MovieCategoryType) -> AnyPublisher<PopularMovieModel.Response, AFError>
+    func fetchMovies(_ categoryType: MovieCategoryType, _ pageNumber: String) -> AnyPublisher<PopularMovieModel.Response, AFError>
 }
 
 final class PopularMovieWorker: PopularMovieWorkerProtocol {
     
-    func fetchMovies(_ categoryType: MovieCategoryType) -> AnyPublisher<PopularMovieModel.Response, AFError> {
-        var route: Route
-        
-        switch categoryType {
-        case .popular   : route = MovieAPIRouter.TMDB.popular
-        }
-        
+    func fetchMovies(_ categoryType: MovieCategoryType, _ pageNumber: String) -> AnyPublisher<PopularMovieModel.Response, AFError> {
+        let route: Route = MovieAPIRouter(pageNumber: pageNumber)
         return ApiRouter.request(route, ofType: PopularMovieModel.Response.self)
     }
     

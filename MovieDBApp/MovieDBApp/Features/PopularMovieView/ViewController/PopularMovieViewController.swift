@@ -57,12 +57,14 @@ class PopularMovieViewController: UIViewController, SortViewControllerDelegate {
     
     private var searchActive: Bool = false
     
+    private var pageNumber = 1
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationUI()
         setupCollectionView()
         popularMovieCollectionView.reloadData()
-        output.fetchMovies(PopularMovieModel.Request(movieCategoryType: .popular))
+        output.fetchMovies(PopularMovieModel.Request(movieCategoryType: .popular, pageNumber: String(pageNumber), sortedBy: sortBy))
     }
     
     private func setupCollectionView() {
@@ -132,6 +134,12 @@ extension PopularMovieViewController: UICollectionViewDataSource {
         router.routeToDetails(movie: searchActive ? viewModel.searchMovies[indexPath.row] : viewModel.movies[indexPath.row])
     }
     
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        if !searchActive, indexPath.row == viewModel.movies.count - 1 {
+            output.fetchMovies(PopularMovieModel.Request(movieCategoryType: .popular, pageNumber: String(pageNumber), sortedBy: sortBy))
+        }
+    }
+    
 }
 
 //MARK:- UICollectionView Flow Layout
@@ -154,7 +162,7 @@ extension PopularMovieViewController: UICollectionViewDelegateFlowLayout {
 
 //MARK:- Show/Hide loader, handle result and errors
 extension PopularMovieViewController: PopularMoviePresenterOutput {
-    
+  
     func showLoading() {
         activityIndicator.startAnimating()
     }
@@ -164,15 +172,21 @@ extension PopularMovieViewController: PopularMoviePresenterOutput {
     }
     
     func showFailure(_ error: Error) {
+        activityIndicator.stopAnimating()
         let alert = UIAlertController(title: "Error", message: "Hmmm… something went wrong. Please try again.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
         self.present(alert, animated: true, completion: nil)
     }
     
     func showSuccess(_ model: PopularMovieModel.ViewModel) {
-        viewModel = model
+        let movies = model.movies
+        pageNumber = pageNumber + 1
+        viewModel.movies.append(contentsOf: movies)
     }
     
+    func showSortedData(_ model: PopularMovieModel.ViewModel) {
+        viewModel = model
+    }
 }
 
 //MARK:- UISearchResults

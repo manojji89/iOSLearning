@@ -12,6 +12,7 @@ protocol PopularMoviePresenterOutput {
     func hideLoading()
     func showFailure(_ error: Error)
     func showSuccess(_ model: PopularMovieModel.ViewModel)
+    func showSortedData(_ model: PopularMovieModel.ViewModel)
 }
 
 final class PopularMoviePresenter: PopularMovieInteractorOutput {
@@ -32,5 +33,9 @@ final class PopularMoviePresenter: PopularMovieInteractorOutput {
 
     func showSuccess(_ model: PopularMovieModel.ViewModel) {
         output.showSuccess(model)
+    }
+    
+    func showSortedData(_ model: PopularMovieModel.ViewModel) {
+        output.showSortedData(model)
     }
 }

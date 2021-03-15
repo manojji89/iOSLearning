@@ -15,63 +15,38 @@ protocol Route: URLRequestConvertible {
     var parameters: Parameters? { get }
 }
 
-struct MovieAPIRouter {
+struct MovieAPIRouter : Route {
+    var pageNumber : String
+
+    var method: HTTPMethod {
+        return .get
+    }
     
-    enum TMDB: Route {
-        case popular
-        case details(Int)
-
+    var path: String {
+        return "/movie/popular"
+    }
+    
+    var parameters: Parameters? {
+        return [
+            "api_key" : MovieAPIConstants.TMDB.apiKey,
+            "page"    : pageNumber
+        ]
+    }
+    
+    func asURLRequest() throws -> URLRequest {
+        guard var components = URLComponents(
+            url: MovieAPIConstants.TMDB.baseUrl.appendingPathComponent(self.path),
+            resolvingAgainstBaseURL: false
+        ) else { throw MovieAPIError.malformedUrl }
         
-        var method: HTTPMethod {
-            switch self {
-            case .popular : return .get
-                
-            case .details(_) : return .get
-                
-            }
+        if let parameters = self.parameters, !parameters.isEmpty {
+            components.queryItems = parameters.map { URLQueryItem(name: $0, value: $1 as? String) }
         }
         
-        var path: String {
-            switch self {
-            case .popular   : return "/movie/popular"
-            
-            case .details(let movieId): return "/movie/\(movieId)"
-            }
-        }
-        
-        var parameters: Parameters? {
-            switch self {
-            case .popular :
-                
-                return [
-                    "api_key" : MovieAPIConstants.TMDB.apiKey,
-                    "page"    : 1
-                ]
-                
-            case .details(_):
-                return [
-                    "api_key": MovieAPIConstants.TMDB.apiKey
-                ]
-                
-            }
-        }
-
-        
-        func asURLRequest() throws -> URLRequest {
-            guard var components = URLComponents(
-                    url: MovieAPIConstants.TMDB.baseUrl.appendingPathComponent(self.path),
-                    resolvingAgainstBaseURL: false
-            ) else { throw MovieAPIError.malformedUrl }
-            
-            if let parameters = self.parameters, !parameters.isEmpty {
-                components.queryItems = parameters.map { URLQueryItem(name: $0, value: $1 as? String) }
-            }
-            
-            do {
-                return try URLRequest(url: components.url!, method: self.method)
-            } catch _ {
-                throw MovieAPIError.malformedUrl
-            }
+        do {
+            return try URLRequest(url: components.url!, method: self.method)
+        } catch _ {
+            throw MovieAPIError.malformedUrl
         }
     }
     

@@ -16,6 +16,8 @@ struct PopularMovieModel {
     
     struct Request {
         let movieCategoryType: MovieCategoryType
+        let pageNumber: String
+        let sortedBy: SortBy
     }
     
     struct Response: Codable {
