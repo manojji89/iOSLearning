@@ -1,7 +1,7 @@
 language: objective-c
 osx_image: xcode12.4
 xcode_workspace: MovieDBApp.xcworkspace
-xcode_scheme: MovieDBApp
+xcode_scheme: MovieDBAppTests
 xcode_destination: platform=iOS Simulator,OS=12.1,name=iPhone X
 before_install:
 - cd iOSLearning
