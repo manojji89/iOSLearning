@@ -1,8 +1,4 @@
 language: objective-c
-osx_image: xcode12.4
-xcode_workspace: MovieDBApp.xcworkspace
-xcode_scheme: MovieDBAppTests
-xcode_destination: platform=iOS Simulator,OS=12.1,name=iPhone X
-before_install:
-- cd iOSLearning
-- pod install
+xcode_project: /Users/masinghal/Documents/GitHub/iOSLearning/MovieDBApp/MovieDBApp.xcworkspace # path to your xcodeproj folder
+xcode_scheme: MovieDBApp
+xcode_destination: name=iPhone 11,OS=14.4
