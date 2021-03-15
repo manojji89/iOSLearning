@@ -24,8 +24,8 @@ import UIKit
     var description: String? {
         get {
             switch self {
-            case .mostPopular: return "most popular"
-            case .highestRated: return "highest rated"
+            case .mostPopular: return "MostPopularText".localized
+            case .highestRated: return "HighestRatedText".localized
             }
         }
     }

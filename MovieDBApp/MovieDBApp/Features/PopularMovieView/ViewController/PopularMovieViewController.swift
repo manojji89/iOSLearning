@@ -76,7 +76,7 @@ class PopularMovieViewController: UIViewController, SortViewControllerDelegate {
     }
       
     private func setupNavigationUI() {
-        title = "Popular Movies".localized
+        title = "PopularMovieTitle".localized
         sortByButton.setImage(UIImage.init(asset: .sortIconImage), for: .normal)
         sortByButton.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
         sortByButton.translatesAutoresizingMaskIntoConstraints = false
@@ -87,7 +87,7 @@ class PopularMovieViewController: UIViewController, SortViewControllerDelegate {
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.isActive = false
-        searchController.searchBar.placeholder = "Search Movies"
+        searchController.searchBar.placeholder = "SearchMoviesPlaceholder".localized
         if #available(iOS 11, *) {
            navigationItem.searchController = searchController;
            searchController.isActive = true;
@@ -173,8 +173,8 @@ extension PopularMovieViewController: PopularMoviePresenterOutput {
     
     func showFailure(_ error: Error) {
         activityIndicator.stopAnimating()
-        let alert = UIAlertController(title: "Error", message: "Hmmm… something went wrong. Please try again.", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+        let alert = UIAlertController(title: "ErrorTitle".localized, message: "ErrorMessage".localized, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OkButtonTitle".localized, style: UIAlertAction.Style.default, handler: nil))
         self.present(alert, animated: true, completion: nil)
     }
     

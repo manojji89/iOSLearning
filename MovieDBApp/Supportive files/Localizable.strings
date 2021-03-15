@@ -1,0 +1,16 @@
+/* 
+  Localizable.strings
+  MovieDBApp
+
+  Created by Manoj Singhal on 15/03/21.
+  
+*/
+
+"PopularMovieTitle" = "Popular Movies";
+"SearchMoviesPlaceholder" = "Search Movies";
+"ErrorTitle" = "Error";
+"ErrorMessage" = "Hmmm… something went wrong. Please try again.";
+"OkButtonTitle" = "OK";
+"MostPopularText" = "most popular";
+"HighestRatedText" = "highest rated";
+

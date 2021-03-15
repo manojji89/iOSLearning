@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		56083B7925FEF74000BB2989 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 56083B7825FEF74000BB2989 /* Localizable.strings */; };
 		5615E6E425FA96BB00FCAEB1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5615E6E325FA96BB00FCAEB1 /* AppDelegate.swift */; };
 		5615E6E625FA96BB00FCAEB1 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5615E6E525FA96BB00FCAEB1 /* SceneDelegate.swift */; };
 		5615E6EB25FA96BB00FCAEB1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5615E6E925FA96BB00FCAEB1 /* Main.storyboard */; };
@@ -53,6 +54,7 @@
 
 /* Begin PBXFileReference section */
 		54513CF2FF0F0620CBF692F2 /* Pods_MovieDBApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MovieDBApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		56083B7825FEF74000BB2989 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		5615E6E025FA96BB00FCAEB1 /* MovieDBApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MovieDBApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5615E6E325FA96BB00FCAEB1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5615E6E525FA96BB00FCAEB1 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -121,10 +123,19 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		56083B7725FEF71700BB2989 /* Supportive files */ = {
+			isa = PBXGroup;
+			children = (
+				56083B7825FEF74000BB2989 /* Localizable.strings */,
+			);
+			path = "Supportive files";
+			sourceTree = "<group>";
+		};
 		5615E6D725FA96BB00FCAEB1 = {
 			isa = PBXGroup;
 			children = (
 				5615E6E225FA96BB00FCAEB1 /* MovieDBApp */,
+				56083B7725FEF71700BB2989 /* Supportive files */,
 				5615E6F925FA96BD00FCAEB1 /* MovieDBAppTests */,
 				5615E70425FA96BD00FCAEB1 /* MovieDBAppUITests */,
 				5615E6E125FA96BB00FCAEB1 /* Products */,
@@ -402,6 +413,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				563B4F6825FD541800AAB09A /* MovieCollectionViewCell.xib in Resources */,
+				56083B7925FEF74000BB2989 /* Localizable.strings in Resources */,
 				5615E6F025FA96BD00FCAEB1 /* LaunchScreen.storyboard in Resources */,
 				5615E6ED25FA96BD00FCAEB1 /* Assets.xcassets in Resources */,
 				5615E6EB25FA96BB00FCAEB1 /* Main.storyboard in Resources */,
